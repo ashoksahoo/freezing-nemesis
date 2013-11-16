@@ -4,6 +4,9 @@
 <div class=page>
   <h1>Flaskr</h1>
   <div class=metanav>
+  <a href="{{ url_for('register') }}">register</a>
+  <a href="{{ url_for('index') }}">home</a>
+  <a href="{{ url_for('edit') }}">edit</a>
   {% if not session.logged_in %}
     <a href="{{ url_for('login') }}">log in</a>
   {% else %}

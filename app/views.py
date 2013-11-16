@@ -22,26 +22,30 @@ def index():
     ]
     return render_template('index.html',
         title = 'Home',
-        user = user,
+        user = 'ashok',
         posts = posts)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm(request.form)
     if request.method == 'POST' and form.validate():
-        user = User(form.username.data, form.password.data,
-                    form.email.data)
+        flash('creating')
+        user = User(username=form.username.data,email=form.email.data,password=form.password.data)
         db.session.add(user)
         db.session.commit()
         flash('Thanks for registering')
-        return redirect(url_for('login'))
+        return redirect(url_for('about'))
+    else:
+        return render_template('login.html',form=form)
     return render_template('register.html', form=form)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    form = LoginForm()
+    form = LoginForm(request.form)
     if form.validate_on_submit():
-        # login and validate the user...
+        # login and validate the user.....
+        flash('creating')
+        user = "hotcoolhot"
         login_user(user)
         flash("Logged in successfully.")
         return redirect(request.args.get("next") or url_for("index"))
@@ -65,12 +69,13 @@ def internal_error(error):
 ###################
 
 @app.route('/user/<username>')
-@login_required
+# @login_required
 def user(username):
     user = User.query.filter_by(username = username).first()
     if user == None:
-        flash('User ' + username + ' not found.')
+        flash('User' + username + ' not found.')
         return redirect(url_for('index'))
+    flash('found something' + user.username)
     posts = [
         { 'author': user, 'body': 'Dummy post #1' },
         { 'author': user, 'body': 'Dummy post #2' }
