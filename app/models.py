@@ -31,7 +31,7 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     body = db.Column(db.String(140))
     timestamp = db.Column(db.DateTime)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.uid'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.uid'))
     # comments = db.relationship('Comment', backref = 'post_id', lazy = 'dynamic')
 
     def __repr__(self):
