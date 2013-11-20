@@ -6,6 +6,19 @@ from models import User, ROLE_USER, ROLE_ADMIN
 from datetime import datetime
 
 
+@lm.user_loader
+def load_user(id):
+    return User.query.get(id)
+
+# @app.before_request
+# def load_user():
+#     if session["user_id"]:
+#         user = User.query.filter_by(username=session["user_id"]).first()
+#     else:
+#         user = {"name": "Guest"}  # Make it better, use an anonymous User instead
+
+#     g.user = user
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -39,14 +52,19 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    # if g.user is not None and g.user.is_authenticated():
+    #     return redirect(url_for('index'))
     form = LoginForm(request.form)
-    if form.validate_on_submit():
-        # login and validate the user.....
-        flash('creating')
-        user = "hotcoolhot"
-        login_user(user)
-        flash("Logged in successfully.")
-        return redirect(request.args.get("next") or url_for("index"))
+    if request.method == 'POST' and form.validate():
+        user = User.query.filter_by(username=request.form['username']).first()
+        if not user:
+            flash('Invalid username')
+        elif not user.check_password(request.form['password']):
+            flash('Invalid password')
+        else:
+            session['user_id'] = user.id  # makes more sense than storing just a bool
+            flash("Logged in successfully.")
+            return redirect(request.args.get("next") or url_for("index"))
     return render_template("login.html", form=form)
 
 
@@ -67,7 +85,7 @@ def internal_error(error):
 ###################
 
 @app.route('/user/<username>')
-# @login_required
+@login_required
 def user(username):
     user = User.query.filter_by(username = username).first()
     if user == None:
@@ -87,7 +105,7 @@ def user(username):
 #@login_required
 def edit():
     form = EditForm()
-    if form.validate_on_submit():
+    if request.method == 'POST' and form.validate():
         g.user.username = form.username.data
         g.user.about_me = form.about_me.data
         g.user.password = form.password.data

@@ -8,7 +8,7 @@ ROLE_ADMIN = 1
 # Standard Databases
 class User(db.Model):
     __tablename__ = 'users'
-    uid = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(60))
     pwdhash = db.Column(db.String())
     email = db.Column(db.String(60))
@@ -24,6 +24,21 @@ class User(db.Model):
  
     def check_password(self, password):
         return check_password_hash(self.pwdhash, password)
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return unicode(self.id)
+
+    def __repr__(self):
+        return '<User %r>' % (self.username)
  
 
 class Post(db.Model):
@@ -31,7 +46,7 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     body = db.Column(db.String(140))
     timestamp = db.Column(db.DateTime)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.uid'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     # comments = db.relationship('Comment', backref = 'post_id', lazy = 'dynamic')
 
     def __repr__(self):
